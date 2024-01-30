@@ -40,7 +40,23 @@ class ReadmeMarkdownGeneratorMojoTest {
         File file = new File(sut.outputFile);
 
         String answer = FileUtils.readFileToString(file, "UTF-8");
-        assertEquals("# Glossary\n" +
+        assertEquals("# Crosscutting Concepts\n" +
+                "\n" +
+                "## Azure Functions\n" +
+                "\n" +
+                "![Azure Functions](docs/images/08_concept_Azure-Functions-Cover.png)\n" +
+                "\n" +
+                "## Serverless Architecture\n" +
+                "\n" +
+                "![Serverless Architecture](docs/images/08_concept_serverless_architecture.png)\n" +
+                "\n" +
+                "## Durable Functions\n" +
+                "\n" +
+                "![Durable Functions](docs/images/08_concept_durable_functions.png)\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "# Glossary\n" +
                 "\n" +
                 "| Term      | Definition    | \n" +
                 "|-----------|---------------| \n" +

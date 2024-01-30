@@ -1,5 +1,5 @@
 # README.md Generator
-Reducing Boilerplate Code with arch42ascii-maven-plugin maven plugin
+Reducing Boilerplate Code with readme markdown maven plugin
 > More Time for Feature and functionality
   Through a simple set of arch42ascii-maven-plugin templates and saving 60% of development time 
 
