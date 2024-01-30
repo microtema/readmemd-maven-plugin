@@ -33,7 +33,7 @@ class ReadmeMarkdownGeneratorMojoTest {
     @Test
     void executeOnNonUpdateFalse() throws Exception {
 
-        sut.outputFile = "target/README.md";
+        sut.outputFile = "_README.md";
 
         sut.execute();
 
