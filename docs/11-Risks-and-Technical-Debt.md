@@ -1,7 +1,7 @@
 # Risk and Technical Debt
 
-[Template](11-Risks-and-Technical-Debt/Development Risk.md)
+:[Development Risk](11-Risks-and-Technical-Debt/Development Risk.md)
 
-[Template](11-Risks-and-Technical-Debt/Deployment Risk.md)
+:[Deployment Risk](11-Risks-and-Technical-Debt/Deployment Risk.md)
 
-[Template](11-Risks-and-Technical-Debt/Operations Risk.md)
+:[Operations Risk](11-Risks-and-Technical-Debt/Operations Risk.md)
