@@ -40,18 +40,17 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
     );
 
     private static final List<String> supportedSddSections = Arrays.asList(
-            "01-Introduction-and-Goals",
-            "02-Constraints",
-            "03-Context-and-Scope",
-            "04-Solution-Strategy",
-            "05-Building-Block-View",
-            "06-Runtime-View",
-            "07-Deployment-View",
-            "08-Crosscutting-Concepts",
-            "09-Architectural-Decisions",
-            "10-Quality-Requirements",
-            "11-Risks-and-Technical-Debt",
-            "12-Glossary"
+            "01-Executive-Summary",
+            "02-Overview",
+            "03-Current-and-Target-State-Architecture",
+            "04-Solution-Architecture",
+            "05-Data",
+            "06-Network",
+            "07-Security",
+            "08-Nonfunctional-Requirements",
+            "09-Quality-Assurance-Strategy",
+            "10-Abbreviations",
+            "11-Document-History"
     );
 
     private static final Map<String, List<String>> supportedSectionsMap = new HashMap<>();
