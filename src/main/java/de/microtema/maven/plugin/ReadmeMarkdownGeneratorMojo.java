@@ -1,6 +1,7 @@
 package de.microtema.maven.plugin;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.logging.Log;
@@ -11,7 +12,9 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,7 +60,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
 
     static {
-        supportedSectionsMap.put("arch42", supportedArch42Sections);
+        supportedSectionsMap.put("docs", supportedArch42Sections);
         supportedSectionsMap.put("sdd", supportedSddSections);
     }
     private final   List<String> possiblePaths = Arrays.asList(
@@ -78,26 +81,31 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
     @Parameter(property = "docDir")
     String docDir = "docs";
 
-    @Parameter(property = "docType")
-    String docType = "arch42";
-
     private File docDirCopy;
 
     private List<String> supportedSections;
 
     public void execute() {
 
+        File docFile = new File(docDir);
+
+        supportedSections = supportedSectionsMap.get(docFile.getName().toLowerCase());
+
+        if(!docFile.exists()) {
+
+            logMessage("Create scaffolding for "+ docDir);
+
+            docFile.mkdirs();
+
+            supportedSections
+                    .stream()
+                    .map(it -> new File(docFile, it+".md"))
+                    .forEach(it -> writeFile(it, getDefaultTemplateContent(it.getName())));
+        }
+
         copyDirectory();
 
-         supportedSections = supportedSectionsMap.get(this.docType.toLowerCase());
-
-        try {
-
-            executeImpl(docDirCopy, new File(outputFile));
-        } finally {
-
-           deleteDirectory();
-        }
+        executeImpl(docDirCopy, new File(outputFile));
     }
 
     void copyDirectory() {
@@ -158,6 +166,10 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
            return;
         }
 
+        if(!file.getName().endsWith(".md")) {
+            return;
+        }
+
         String fileContent = getFileContent(file);
 
         List<Directive> directives = getDirectives(fileContent);
@@ -165,6 +177,8 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         fileContent = replaceImagePaths(fileContent);
 
         for (Directive directive : directives) {
+
+            logMessage("Get template content from path: "+directive.path);
 
             String templateContent = getFileContent(new File(this.docDirCopy, directive.path));
 
@@ -207,9 +221,9 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
     String getFileContent(File file){
 
         try {
-            return FileUtils.readFileToString(file, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to get template content from file: "+file.getPath(), e);
         }
     }
 
@@ -295,11 +309,22 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         return filteredFiles;
     }
 
-    String getDefaultTemplateContent(String fileName){
+    String getDefaultTemplateContent(String templateName){
 
-        String title = getTemplateTitle(fileName.replace(".md", ""));
+        try {
 
-        return "# " +title + lineSeparator() + "See shared documentation";
+            InputStream inputStream = ReadmeMarkdownGeneratorMojo.class.getResourceAsStream("/" + this.docDir +"/" + templateName);
+
+            Objects.requireNonNull(inputStream);
+
+            return IOUtils.toString(inputStream, Charset.defaultCharset());
+
+        } catch (Exception e) {
+
+            String title = getTemplateTitle(templateName.replace(".md", ""));
+
+            return "# " +title + lineSeparator() + "See shared documentation";
+        }
     }
 
     List<File> listMissingTemplateFiles() {

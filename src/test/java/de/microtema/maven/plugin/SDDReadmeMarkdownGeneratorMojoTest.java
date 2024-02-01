@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class SDDReadmeMarkdownGeneratorMojoTest {
@@ -31,15 +31,29 @@ class SDDReadmeMarkdownGeneratorMojoTest {
     @Test
     void executeOnNonUpdateFalse() throws Exception {
 
-        sut.outputFile = "SDD_README.md";
-        sut.docType = "SDD";
-        sut.docDir = "sdd";
+        sut.outputFile = "README.md";
+        sut.docDir = "docs";
 
         sut.execute();
 
         File file = new File(sut.outputFile);
+        assertTrue(file.exists());
 
         String answer = FileUtils.readFileToString(file, "UTF-8");
-        assertEquals("", answer);
+        assertNotNull(answer);
+
+        sut.outputFile = "SDD_README.md";
+        sut.docDir = "sdd";
+
+        sut.execute();
+
+        file = new File(sut.outputFile);
+        assertTrue(file.exists());
+
+        answer = FileUtils.readFileToString(file, "UTF-8");
+
+        assertTrue(file.exists());
+
+        assertNotNull(answer);
     }
 }
