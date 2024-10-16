@@ -16,7 +16,7 @@ Solution Strategy
 
 Building Block Overview
 
-![Hierarchy of building blocks](docs/docs/docs/docs/images/05_building_blocks-EN.png)
+![Hierarchy of building blocks](images/05_building_blocks-EN.png)
 
 **Level 1** is the white box description of the overall system together
 with black box descriptions of all contained building blocks.
@@ -186,7 +186,7 @@ Specifies the internal structure of *building block x.1*.
 
 # Runtime View
 
-![Runtime View](docs/docs/docs/docs/images/06_Runtime_View.png)
+![Runtime View](images/06_Runtime_View.png)
 
 ## Layers/Participants
 
@@ -356,7 +356,7 @@ Architecture Decisions                                                          
 
 ## Quality Tree
 
-![Quality Tree](docs/docs/docs/docs/images/10_Quality_Tree.png)
+![Quality Tree](images/10_Quality_Tree.png)
 
 ## Quality Scenarios
 

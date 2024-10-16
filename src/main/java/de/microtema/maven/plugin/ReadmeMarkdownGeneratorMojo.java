@@ -69,7 +69,8 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
             "../../../../images/",
             "../../../images/",
             "../../images/",
-            "../images/"
+            "../images/",
+            "./images/"
     );
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
