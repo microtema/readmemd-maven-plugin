@@ -27,43 +27,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
     // :[Template](08-Crosscutting-Concepts/Azure-Functions.md)
     private static final Pattern pattern = Pattern.compile("(:\\[.*\\]\\(([^\\)]+)\\))");
 
-    private static final List<String> supportedArch42Sections = Arrays.asList(
-            "01-Introduction-and-Goals",
-            "02-Constraints",
-            "03-Context-and-Scope",
-            "04-Solution-Strategy",
-            "05-Building-Block-View",
-            "06-Runtime-View",
-            "07-Deployment-View",
-            "08-Crosscutting-Concepts",
-            "09-Architectural-Decisions",
-            "10-Quality-Requirements",
-            "11-Risks-and-Technical-Debt",
-            "12-Glossary"
-    );
-
-    private static final List<String> supportedSddSections = Arrays.asList(
-            "01-Executive-Summary",
-            "02-Overview",
-            "03-Current-and-Target-State-Architecture",
-            "04-Solution-Architecture",
-            "05-Data",
-            "06-Network",
-            "07-Security",
-            "08-Nonfunctional-Requirements",
-            "09-Quality-Assurance-Strategy",
-            "10-Abbreviations",
-            "11-Document-History"
-    );
-
-    private static final Map<String, List<String>> supportedSectionsMap = new HashMap<>();
-
-
-    static {
-        supportedSectionsMap.put("docs", supportedArch42Sections);
-        supportedSectionsMap.put("sdd", supportedSddSections);
-    }
-    private final   List<String> possiblePaths = Arrays.asList(
+    private final List<String> possiblePaths = Arrays.asList(
             "../../../../../../images/",
             "../../../../../images/",
             "../../../../images/",
@@ -84,29 +48,46 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
     private File docDirCopy;
 
-    private List<String> supportedSections;
 
     public void execute() {
 
         File docFile = new File(docDir);
 
-        supportedSections = supportedSectionsMap.get(docFile.getName().toLowerCase());
+        if (!docFile.exists()) {
 
-        if(!docFile.exists()) {
+            logMessage("Create scaffolding for " + docDir);
 
-            logMessage("Create scaffolding for "+ docDir);
-
-            docFile.mkdirs();
-
-            supportedSections
-                    .stream()
-                    .map(it -> new File(docFile, it+".md"))
-                    .forEach(it -> writeFile(it, getDefaultTemplateContent(it.getName())));
+            createDirectory();
         }
 
         copyDirectory();
 
         executeImpl(docDirCopy, new File(outputFile));
+    }
+
+    List<String> readSections(File docFile) {
+
+        File[] files = docFile.listFiles();
+
+        Objects.requireNonNull(files, "folder should not be null!");
+
+        return Stream.of(files)
+                .map(File::getName)
+                .map(it -> it.replace(".md", ""))
+                .filter(it -> !it.equalsIgnoreCase("images"))
+                .collect(Collectors.toSet())
+                .stream()
+                .sorted(Comparator.comparing(ReadmeMarkdownGeneratorMojo::getFileIndex))
+                .collect(Collectors.toList());
+    }
+
+    void createDirectory() {
+
+        try {
+            FileUtils.copyDirectory(new File("docs"), new File(docDir));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void copyDirectory() {
@@ -120,33 +101,27 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         }
     }
 
-    void deleteDirectory() {
-        try {
-            FileUtils.deleteDirectory(docDirCopy);
-        } catch (IOException e) {
-            // Ignore exception
-        }
-    }
-
     void executeImpl(File inputDir, File outputFile) {
 
         replaceExpressions(inputDir);
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        List<File> orderedTemplateFiles = listTemplateFiles(inputDir);
+        List<String> sections = readSections(inputDir);
 
-        if(orderedTemplateFiles.isEmpty()){
+        if (sections.isEmpty()) {
             return;
         }
 
         logMessage("Merge templates from " + inputDir + " -> " + outputFile);
 
-        for (File templateFile : orderedTemplateFiles) {
+        for (String section : sections) {
 
-            String template = importTemplate(templateFile);
+            String template = importTemplate(section, inputDir, 1);
 
-            stringBuilder.append(template).append(lineSeparator());
+            stringBuilder.append(template).append(lineSeparator())
+                    .append("---")
+                    .append(lineSeparator());
         }
 
         writeFile(outputFile, stringBuilder.toString());
@@ -154,20 +129,20 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
     void replaceExpressions(File file) {
 
-        if(file.isDirectory()) {
+        if (file.isDirectory()) {
 
-            File[] files = file.listFiles();
+            File[] files = file.listFiles((dir, name) -> !name.equalsIgnoreCase("images"));
 
-            if(Objects.isNull(files)) {
+            if (Objects.isNull(files)) {
                 return;
             }
 
             Stream.of(files).forEach(this::replaceExpressions);
 
-           return;
+            return;
         }
 
-        if(!file.getName().endsWith(".md")) {
+        if (!file.getName().endsWith(".md")) {
             return;
         }
 
@@ -179,7 +154,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
         for (Directive directive : directives) {
 
-            logMessage("Get template content from path: "+directive.path);
+            logMessage("Get template content from path: " + directive.path);
 
             String templateContent = getFileContent(new File(this.docDirCopy, directive.path));
 
@@ -197,7 +172,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
         Matcher matcher = pattern.matcher(fileContent);
 
-        while(matcher.find()) {
+        while (matcher.find()) {
 
             Directive directive = new Directive();
 
@@ -219,12 +194,12 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         String path;
     }
 
-    String getFileContent(File file){
+    String getFileContent(File file) {
 
         try {
             return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to get template content from file: "+file.getPath(), e);
+            throw new RuntimeException("Unable to get template content from file: " + file.getPath(), e);
         }
     }
 
@@ -239,7 +214,16 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         return tempTemplate;
     }
 
-    String importTemplate(File template) {
+    String importTemplate(String templateName, File templateParentDir, int intent) {
+
+        File template = new File(templateParentDir, templateName + ".md");
+
+        if (!template.exists()) {
+
+            template = new File(templateParentDir, templateName);
+
+            return getDefaultTemplateContent(template, intent);
+        }
 
         try {
             return FileUtils.readFileToString(template, Charset.defaultCharset());
@@ -259,13 +243,17 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
     String lineSeparator() {
 
+        return repeat(System.lineSeparator(), 2);
+    }
+
+    String repeat(String token, int times) {
+
         int index = 0;
-        int lines = 2;
 
         StringBuilder str = new StringBuilder();
 
-        while (index++ < lines) {
-            str.append(System.lineSeparator());
+        while (index++ < times) {
+            str.append(token);
         }
 
         return str.toString();
@@ -285,61 +273,33 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         log.info("+----------------------------------+");
     }
 
-    List<File> listTemplateFiles(File file) {
+    String getDefaultTemplateContent(File templateFile, int intent) {
 
-        File[] files =  file.listFiles((File dir, String fileName) -> fileName.endsWith(".md"));
+        StringBuilder stringBuilder = new StringBuilder();
 
-        if(files == null) {
-            return Collections.emptyList();
+        List<String> orderedTemplateSection = readSections(templateFile);
+
+        String headLine = getTemplateTitle(templateFile.getName());
+
+        String tokens = repeat("#", intent);
+
+        stringBuilder.append(tokens).append(" ").append(headLine).append(lineSeparator());
+
+        for (String section : orderedTemplateSection) {
+
+            String template = importTemplate(section, templateFile, intent + 1);
+
+            stringBuilder.append(template).append(lineSeparator())
+                   // .append("---")
+                    .append(lineSeparator());
         }
 
-        List<File> orderedFiles = new ArrayList<>(Arrays.asList(files));
-
-        List<File> filteredFiles = orderedFiles.stream()
-                .filter(it -> supportedSections.contains(it.getName().replace(".md", "")))
-                .collect(Collectors.toList());
-
-        List<File> missingFiles = listMissingTemplateFiles();
-
-        missingFiles.forEach(it -> writeFile(it, getDefaultTemplateContent(it.getName())));
-
-        filteredFiles.addAll(missingFiles);
-
-        filteredFiles.sort(Comparator.comparing(o -> getFileIndex(o.getName())));
-
-        return filteredFiles;
-    }
-
-    String getDefaultTemplateContent(String templateName){
-
-        try {
-
-            InputStream inputStream = ReadmeMarkdownGeneratorMojo.class.getResourceAsStream("/" + this.docDir +"/" + templateName);
-
-            Objects.requireNonNull(inputStream);
-
-            return IOUtils.toString(inputStream, Charset.defaultCharset());
-
-        } catch (Exception e) {
-
-            String title = getTemplateTitle(templateName.replace(".md", ""));
-
-            return "# " +title + lineSeparator() + "See shared documentation";
-        }
-    }
-
-    List<File> listMissingTemplateFiles() {
-
-        return supportedSections
-                .stream()
-                .map(it -> new File(this.docDirCopy, it+".md"))
-                .filter(it -> !it.exists())
-                .collect(Collectors.toList());
+        return stringBuilder.toString();
     }
 
     private String getTemplateTitle(String title) {
 
-        if(StringUtils.isNumeric(getFileIndex(title))) {
+        if (StringUtils.isNumeric(getFileIndex(title))) {
             title = title.substring(3);
         }
 

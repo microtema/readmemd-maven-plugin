@@ -20,7 +20,7 @@
 
 ## Assumptions
 
-:[Assumptions](../docs/04-Solution-Strategy/Solution-Strategy.template.md)
+:[Assumptions](../docs/04-Solution-Strategy/01-Solution-Strategy)
 
 ## Risk & Issues
 
