@@ -19,7 +19,7 @@
         <maven.compiler.target.version>1.8</maven.compiler.target.version>
         <maven.source.plugin>2.2.1</maven.source.plugin>
         <maven.compiler.plugin>2.3.2</maven.compiler.plugin>
-        <maven.javadoc.plugin>2.10.4</maven.javadoc.plugin>
+        <maven.javadoc.plugin>3.1.1</maven.javadoc.plugin>
 
         <sonar.projectKey>mtema_${project.artifactId}</sonar.projectKey>
         <sonar.organization>mtema-bitbucket</sonar.organization>

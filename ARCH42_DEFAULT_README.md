@@ -95,17 +95,17 @@ Building Block Overview
 
 ## Azure Functions
 
-![Azure Functions](docs/images/08_concept_Azure-Functions-Cover.png)
+![Azure Functions](arch42_docs/images/08_concept_Azure-Functions-Cover.png)
 
 ## Durable Functions
 
-![Durable Functions](docs/images/08_concept_durable_functions.png)
+![Durable Functions](arch42_docs/images/08_concept_durable_functions.png)
 
 ## Serverless Architecture
 
 ### Cost-Efficiency
 
-![Serverless Architecture](docs/images/08_concept_serverless_architecture.png)
+![Serverless Architecture](arch42_docs/images/08_concept_serverless_architecture.png)
 
 
 
