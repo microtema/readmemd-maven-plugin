@@ -14,7 +14,7 @@ Values for Business and IT:
 
 * Fulfilling modern security requirements
 
-  There are some older environments for data intake within the MunichRE landscape. These are not fully up-to-date from a security perspective. Therefore we will fulfill the needed security requirements with the new Global Managed File Transfer.
+  There are some older environments for data intake within the Org landscape. These are not fully up-to-date from a security perspective. Therefore we will fulfill the needed security requirements with the new Global Managed File Transfer.
 
 * Scalability and speed
 

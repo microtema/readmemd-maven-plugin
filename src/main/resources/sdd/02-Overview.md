@@ -17,7 +17,7 @@ Once the PRE-CART has been completed for your application, the process will gene
 
 ## Business Architecture
 
-Reference the business architecture from your cluster's Target roadmap. Find your roadmap by reaching out to your respective EA (Find Your EA here ). Show how this application fits into the bigger picture of the Munich Re application portfolio.
+Reference the business architecture from your cluster's Target roadmap. Find your roadmap by reaching out to your respective EA (Find Your EA here ). Show how this application fits into the bigger picture of the  application portfolio.
 
 ## Solution Impact on the business capabilities
 

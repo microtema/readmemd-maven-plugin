@@ -26,7 +26,7 @@ Clearly identify type of component used like SaaS, PaaS or IaaS for each compone
 
 Provide a complete list of all the technologies and patterns used in the solution. This should reference Enterprise patterns. This section should include the rationale behind selecting specific patterns and potential risks and challenges associated with them.
 
-Note: If your project is leveraging nonstandard software (including Open-Source Tools), the completion of the SDD is not sufficient. Please submit a completed Vendor pack such that the technology can be reviewed and be approved/disapproved to be introduced to the Munich Re standard technology stack.
+Note: If your project is leveraging nonstandard software (including Open-Source Tools), the completion of the SDD is not sufficient. Please submit a completed Vendor pack such that the technology can be reviewed and be approved/disapproved to be introduced to the Org standard technology stack.
 
 Organize the patterns you have used by the domains provided in the pattern explorer based on the applications and integrations identified in this solution. If any of the patterns do not exist involve EA to tentatively agree on the pattern as future standard, so that EA can work on publishing a standard pattern in parallel to the project. A request can be submitted via the Patterns page linked above.
 
