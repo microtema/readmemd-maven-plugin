@@ -84,11 +84,10 @@ public class TemplateGenerator {
         return Stream.of(files)
                 .map(File::getName)
                 .map(it -> it.replace(".md", ""))
-                .filter(it -> !it.equalsIgnoreCase("images"))
+                .filter(it -> !it.equalsIgnoreCase("images") && !it.equalsIgnoreCase(".DS_Store"))
                 .collect(Collectors.toSet())
                 .stream()
                 .sorted(Comparator.comparing(this::getFileIndex))
-                .filter(StringUtils::isNoneBlank)
                 .collect(Collectors.toList());
     }
 
