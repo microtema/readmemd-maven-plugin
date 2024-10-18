@@ -88,6 +88,7 @@ public class TemplateGenerator {
                 .collect(Collectors.toSet())
                 .stream()
                 .sorted(Comparator.comparing(this::getFileIndex))
+                .filter(StringUtils::isNoneBlank)
                 .collect(Collectors.toList());
     }
 
@@ -100,7 +101,9 @@ public class TemplateGenerator {
 
             String content = getDefaultTemplateContent(templateDir, intent);
 
-            writeFile(template, content);
+            if (content != null) {
+                writeFile(template, content);
+            }
         }
 
         try {
@@ -112,9 +115,13 @@ public class TemplateGenerator {
 
     String getDefaultTemplateContent(File templateFile, int intent) {
 
-        StringBuilder stringBuilder = new StringBuilder();
-
         List<String> orderedTemplateSection = readSections(templateFile);
+
+        if (orderedTemplateSection.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
 
         String headLine = getTemplateTitle(templateFile.getName());
 
