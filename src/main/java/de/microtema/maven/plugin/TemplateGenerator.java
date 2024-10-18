@@ -77,7 +77,9 @@ public class TemplateGenerator {
 
         File[] files = docFile.listFiles();
 
-        Objects.requireNonNull(files, "folder should not be null!");
+        if (files == null) {
+            return Collections.emptyList();
+        }
 
         return Stream.of(files)
                 .map(File::getName)
