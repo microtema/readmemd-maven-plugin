@@ -34,13 +34,13 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
     private static final Pattern DIRECTIVE_PATTERN = Pattern.compile("(:\\[.*\\]\\(([^\\)]+)\\))");
 
     private final List<String> possiblePaths = Arrays.asList(
-            "../../../../../../images/",
-            "../../../../../images/",
-            "../../../../images/",
-            "../../../images/",
-            "../../images/",
-            "../images/",
-            "./images/"
+            "../../../../../../",
+            "../../../../../",
+            "../../../../",
+            "../../../",
+            "../../",
+            "../",
+            "./"
     );
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -136,7 +136,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
         File docDirCopy = new File(outputDocDir);
 
-        if(docDirCopy.exists()) {
+        if (docDirCopy.exists()) {
             docDirCopy.delete();
         }
 
@@ -166,6 +166,10 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
         String content = summarizeSections(inputDir);
 
+        String imagePath = "./" + outputDocDir + "/images/";
+
+        content = replaceImagePaths(content, imagePath);
+
         writeFile(outputFile, content);
     }
 
@@ -194,27 +198,9 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         files.stream().sorted((a, b) -> getLayer(b).compareTo(getLayer(a))).forEach(this::replaceExpressionsImpl);
     }
 
-    File getTargetFile(File file) {
-
-        String fileName = file.getPath();
-
-        if (!fileName.startsWith(outputDocDir)) {
-
-            fileName = fileName.replaceFirst(inputDocDir, outputDocDir);
-
-            file = new File(fileName);
-        }
-
-        return file;
-    }
-
-    void replaceExpressionsImpl(File file) {
-
-        File targetFile = getTargetFile(file);
+    void replaceExpressionsImpl(File targetFile) {
 
         String fileContent = getFileContent(targetFile);
-
-        fileContent = replaceImagePaths(fileContent);
 
         List<Directive> directives = getDirectives(fileContent);
 
@@ -230,15 +216,34 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
             fileContent = fileContent.replace(Matcher.quoteReplacement(directive.group), templateContent);
         }
 
-        writeFile(getTargetFile(targetFile), fileContent);
+        String imagePath = getImageDir(targetFile);
+
+        fileContent = replaceImagePaths(fileContent, imagePath);
+
+        writeFile(targetFile, fileContent);
+    }
+
+    private String getImageDir(File templateFile) {
+
+        int level = getLayer(templateFile);
+
+        String imagePath = repeatToken("../", level);
+
+        if (StringUtils.isEmpty(imagePath)) {
+            imagePath = "./";
+        }
+
+        return imagePath + "images/";
     }
 
     Integer getLayer(File file) {
+
         int layer = 0;
 
         File parent = file.getParentFile();
+        File rootDir = new File(outputDocDir);
 
-        while (parent != null) {
+        while (parent != null && !parent.equals(rootDir)) {
             layer++;
             parent = parent.getParentFile();
         }
@@ -284,35 +289,35 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
     String getFileContent(File file) {
 
-        File targetFile = getTargetFile(file);
-
         try {
-            return FileUtils.readFileToString(targetFile, StandardCharsets.UTF_8);
+            return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to get template content from file: " + targetFile.getPath(), e);
+            throw new RuntimeException("Unable to get template content from file: " + file.getPath(), e);
         }
     }
 
-    String replaceImagePaths(String tempTemplate) {
+    String replaceImagePaths(String tempTemplate, String docImageDir) {
 
         for (String path : possiblePaths) {
-            if (tempTemplate.contains(path)) {
-                tempTemplate = tempTemplate.replaceAll(path, outputDocDir + "/images/");
+
+            String imagePath = "(" + path + "images/";
+
+            if (tempTemplate.contains(imagePath)) {
+                tempTemplate = tempTemplate.replace(imagePath, "(" + docImageDir);
             }
         }
 
-        return tempTemplate;
+        // fallback without dot
+        return tempTemplate.replace("(images/", "(" + docImageDir);
     }
 
     private String resolveTemplatePath(String templatePath) {
 
         for (String path : possiblePaths) {
 
-            String fixedPath = path.replace("/images/", "/");
+            if (templatePath.contains(path)) {
 
-            if (templatePath.contains(fixedPath)) {
-
-                return templatePath.replace(fixedPath, inputDocDir + "/");
+                return templatePath.replace(path, outputDocDir + "/");
             }
         }
 
@@ -411,5 +416,4 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
         return str.toString();
     }
-
 }
