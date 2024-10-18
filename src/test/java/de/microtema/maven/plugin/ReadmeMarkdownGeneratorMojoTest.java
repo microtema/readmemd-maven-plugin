@@ -35,7 +35,7 @@ class ReadmeMarkdownGeneratorMojoTest {
     void executeOnNonUpdateFalse() throws Exception {
 
         sut.outputFile = "ARCH42_README.md";
-        sut.docDir = "docs";
+        sut.inputDocDir = "docs";
 
         sut.execute();
 
@@ -51,7 +51,7 @@ class ReadmeMarkdownGeneratorMojoTest {
     void createDocTemplates() throws Exception {
 
         sut.outputFile = "ARCH42_DEFAULT_README.md";
-        sut.docDir = "arch42_docs";
+        sut.inputDocDir = "arch42_docs";
 
         sut.execute();
 

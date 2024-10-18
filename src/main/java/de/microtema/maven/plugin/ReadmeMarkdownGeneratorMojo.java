@@ -49,22 +49,25 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
     @Parameter(property = "outputFile")
     String outputFile = "README.md";
 
-    @Parameter(property = "docDir")
-    String docDir = "docs";
+    @Parameter(property = "inputDocDir")
+    String inputDocDir = ".docs";
+
+    @Parameter(property = "outputDocDir")
+    String outputDocDir = "docs";
 
 
     public void execute() {
 
-        File docFile = new File(docDir);
+        File docFile = new File(inputDocDir);
 
         if (!docFile.exists()) {
 
-            logMessage("Create scaffolding for " + docDir);
+            logMessage("Create scaffolding for " + inputDocDir);
 
             createDirectory(docFile);
         }
 
-        File docDirCopy = copyDirectory(docDir);
+        File docDirCopy = copyDirectory(inputDocDir);
 
         executeImpl(docDirCopy, new File(outputFile));
     }
@@ -131,10 +134,23 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
     File copyDirectory(String docDir) {
 
-        File docDirCopy = new File("target", docDir);
+        File docDirCopy = new File(outputDocDir);
+
+        if(docDirCopy.exists()) {
+            docDirCopy.delete();
+        }
 
         try {
-            FileUtils.copyDirectory(new File(docDir), docDirCopy);
+
+            File[] files = Objects.requireNonNull(new File(docDir).listFiles(), "Should not be null!");
+
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    FileUtils.copyDirectoryToDirectory(file, docDirCopy);
+                } else {
+                    FileUtils.copyFileToDirectory(file, docDirCopy);
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -182,9 +198,9 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
         String fileName = file.getPath();
 
-        if (!fileName.startsWith("target")) {
+        if (!fileName.startsWith(outputDocDir)) {
 
-            fileName = "target/" + fileName;
+            fileName = fileName.replaceFirst(inputDocDir, outputDocDir);
 
             file = new File(fileName);
         }
@@ -281,7 +297,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
         for (String path : possiblePaths) {
             if (tempTemplate.contains(path)) {
-                tempTemplate = tempTemplate.replaceAll(path, docDir + "/images/");
+                tempTemplate = tempTemplate.replaceAll(path, outputDocDir + "/images/");
             }
         }
 
@@ -296,7 +312,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
             if (templatePath.contains(fixedPath)) {
 
-                return templatePath.replace(fixedPath, docDir + "/");
+                return templatePath.replace(fixedPath, inputDocDir + "/");
             }
         }
 
