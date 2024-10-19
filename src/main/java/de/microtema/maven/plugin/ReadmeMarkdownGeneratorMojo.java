@@ -2,7 +2,6 @@ package de.microtema.maven.plugin;
 
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.logging.Log;
@@ -13,15 +12,11 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @CommonsLog
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.COMPILE)
@@ -57,7 +52,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         executeImpl(docDirCopy, new File(outputFile));
     }
 
-    void createDirectory(File docDir) {
+    private void createDirectory(File docDir) {
 
         try {
 
@@ -77,8 +72,6 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
                 File resourceFile = new File(path.replace("!/docs", "").replace("file:", ""));
 
-                logMessage("Parent Path: " + resourceFile);
-
                 JarFile jar = new JarFile(resourceFile);
 
                 Enumeration<JarEntry> enumEntries = jar.entries();
@@ -94,7 +87,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
                     }
 
                     File f = new File(docDir.getParentFile(), jarEntry.getName());
-                    if (jarEntry.isDirectory()) { // if its a directory, create it
+                    if (jarEntry.isDirectory()) { // if it's a directory, create it
                         f.mkdir();
                         continue;
                     }
@@ -117,7 +110,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         }
     }
 
-    File copyDirectory(String docDir) {
+    private File copyDirectory(String docDir) {
 
         File docDirCopy = new File(outputDocDir);
 
@@ -143,7 +136,7 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         return docDirCopy;
     }
 
-    void executeImpl(File inputDir, File outputFile) {
+    private void executeImpl(File inputDir, File outputFile) {
 
         logMessage("Merge templates from " + inputDir + " -> " + outputFile);
 
@@ -154,11 +147,12 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
         templateGenerator.execute();
     }
 
-    void logMessage(String... messages) {
+    private void logMessage(String... messages) {
 
         Log log = getLog();
 
         log.info("+----------------------------------+");
+
         for (String message : messages) {
             log.info(message);
         }
