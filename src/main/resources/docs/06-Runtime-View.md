@@ -1,6 +1,6 @@
 # Runtime View
 
-![Runtime View](images/06_Runtime_View.png)
+![Runtime View](./images/06_Runtime_View.png)
 
 ## Layers/Participants
 

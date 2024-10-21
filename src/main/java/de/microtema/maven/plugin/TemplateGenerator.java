@@ -6,12 +6,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static de.microtema.maven.plugin.TemplateGeneratorUtils.*;
 
 public class TemplateGenerator {
 
@@ -52,7 +53,7 @@ public class TemplateGenerator {
 
         String filteredContent = replaceImagePaths(content, imagePath);
 
-        writeFile(outputFile, filteredContent);
+        writeTemplate(outputFile, filteredContent);
     }
 
     String summarizeSections(File inputDir) {
@@ -87,7 +88,7 @@ public class TemplateGenerator {
                 .filter(it -> !it.equalsIgnoreCase("images") && !it.equalsIgnoreCase(".DS_Store"))
                 .collect(Collectors.toSet())
                 .stream()
-                .sorted(Comparator.comparing(this::getFileIndex))
+                .sorted(Comparator.comparing(TemplateGeneratorUtils::getFileIndex))
                 .collect(Collectors.toList());
     }
 
@@ -101,15 +102,11 @@ public class TemplateGenerator {
             String content = getDefaultTemplateContent(templateDir, intent);
 
             if (content != null) {
-                writeFile(template, content);
+                writeTemplate(template, content);
             }
         }
 
-        try {
-            return FileUtils.readFileToString(template, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return readTemplate(template);
     }
 
     String getDefaultTemplateContent(File templateFile, int intent) {
@@ -138,23 +135,7 @@ public class TemplateGenerator {
         return stringBuilder.toString();
     }
 
-    private String getTemplateTitle(String title) {
 
-        if (StringUtils.isNumeric(getFileIndex(title))) {
-            title = title.substring(3);
-        }
-
-        return title.replace(".md", "")
-                .replaceAll("-", " ");
-    }
-
-    private void writeFile(File file, String content) {
-        try {
-            FileUtils.writeStringToFile(file, content, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void replaceExpressions(File file) {
 
@@ -199,17 +180,10 @@ public class TemplateGenerator {
 
         fileContent = replaceImagePaths(fileContent, imagePath);
 
-        writeFile(targetFile, fileContent);
+        writeTemplate(targetFile, fileContent);
     }
 
-    private String getFileContent(File file) {
 
-        try {
-            return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to get template content from file: " + file.getPath(), e);
-        }
-    }
 
     private List<Directive> getDirectives(String fileContent) {
 
@@ -257,18 +231,7 @@ public class TemplateGenerator {
         return imagePath + "images/";
     }
 
-    private String repeatToken(String token, int times) {
 
-        int index = 0;
-
-        StringBuilder str = new StringBuilder();
-
-        while (index++ < times) {
-            str.append(token);
-        }
-
-        return str.toString();
-    }
 
     private String replaceImagePaths(String tempTemplate, String docImageDir) {
 
@@ -285,14 +248,6 @@ public class TemplateGenerator {
         return tempTemplate.replace("(images/", "(" + docImageDir);
     }
 
-    private String getFileIndex(String fileName) {
 
-        return fileName.split("-")[0];
-    }
-
-    private String lineSeparator() {
-
-        return repeatToken(System.lineSeparator(), 2);
-    }
 
 }

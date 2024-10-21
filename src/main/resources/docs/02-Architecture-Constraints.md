@@ -77,7 +77,7 @@ git commit -m "<ISSUE_ID> <DESCRIPTION>"
 
 ```
 git config --global user.name "microtema"
-git config --global user.email "microtema@webÏ.com"
+git config --global user.email "microtema@web.de"
 ```
 
 ## Pull Request Policies

@@ -1,6 +1,5 @@
 package de.microtema.maven.plugin;
 
-import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.plugin.AbstractMojo;
@@ -18,7 +17,9 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-@CommonsLog
+import static de.microtema.maven.plugin.TemplateGeneratorUtils.copyDir;
+import static de.microtema.maven.plugin.TemplateGeneratorUtils.copyFromJar;
+
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.COMPILE)
 public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
@@ -47,9 +48,18 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
             createDirectory(docFile);
         }
 
-        File docDirCopy = copyDirectory(inputDocDir);
+        File inputDir = new File(inputDocDir);
+        File outputDir = new File(outputDocDir);
 
-        executeImpl(docDirCopy, new File(outputFile));
+        copyDir(inputDir, outputDir);
+
+        logMessage("Merge templates from " + inputDir + " -> " + outputFile);
+
+        String imagePath = "./" + outputDocDir + "/images/";
+
+        TemplateGenerator templateGenerator = new TemplateGenerator(new File(outputFile), outputDir, imagePath);
+
+        templateGenerator.execute();
     }
 
     private void createDirectory(File docDir) {
@@ -70,81 +80,16 @@ public class ReadmeMarkdownGeneratorMojo extends AbstractMojo {
 
             if (path.contains(".jar")) {
 
-                File resourceFile = new File(path.replace("!/docs", "").replace("file:", ""));
+                copyFromJar(path, docDir);
 
-                JarFile jar = new JarFile(resourceFile);
+            } else {
 
-                Enumeration<JarEntry> enumEntries = jar.entries();
-
-                while (enumEntries.hasMoreElements()) {
-
-                    JarEntry jarEntry = enumEntries.nextElement();
-
-                    logMessage(jarEntry.getName());
-
-                    if (!jarEntry.getName().contains("docs/")) {
-                        continue;
-                    }
-
-                    File f = new File(docDir.getParentFile(), jarEntry.getName());
-                    if (jarEntry.isDirectory()) { // if it's a directory, create it
-                        f.mkdir();
-                        continue;
-                    }
-
-                    InputStream inputStream = jar.getInputStream(jarEntry); // get the input stream
-                    FileOutputStream fileOutputStream = new FileOutputStream(f);
-
-                    while (inputStream.available() > 0) {  // write contents of 'is' to 'fos'
-                        fileOutputStream.write(inputStream.read());
-                    }
-
-                    fileOutputStream.close();
-                    inputStream.close();
-                }
-                jar.close();
+                copyDir(new File(path), new File(inputDocDir));
             }
 
         } catch (Exception e) {
             throw new RuntimeException("Unable to copy default docs!", e);
         }
-    }
-
-    private File copyDirectory(String docDir) {
-
-        File docDirCopy = new File(outputDocDir);
-
-        if (docDirCopy.exists()) {
-            docDirCopy.delete();
-        }
-
-        try {
-
-            File[] files = Objects.requireNonNull(new File(docDir).listFiles(), "Should not be null!");
-
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    FileUtils.copyDirectoryToDirectory(file, docDirCopy);
-                } else {
-                    FileUtils.copyFileToDirectory(file, docDirCopy);
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return docDirCopy;
-    }
-
-    private void executeImpl(File inputDir, File outputFile) {
-
-        logMessage("Merge templates from " + inputDir + " -> " + outputFile);
-
-        String imagePath = "./" + outputDocDir + "/images/";
-
-        TemplateGenerator templateGenerator = new TemplateGenerator(outputFile, new File(outputDocDir), imagePath);
-
-        templateGenerator.execute();
     }
 
     private void logMessage(String... messages) {

@@ -17,4 +17,4 @@ most important decisions of your architecture.
 Stakeholders of your system should be able to comprehend and retrace
 your decisions.
 
-:[Architecture Decision](09-Architectural-Decisions/Architectural-Decisions.template.md)                                                                                   |
+:[Architecture Decision](./09-Architectural-Decisions/Architectural-Decisions.template.md)                                                                                   |

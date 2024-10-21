@@ -1,1 +1,0 @@
-## Solution Strategy 02

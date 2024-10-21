@@ -7,7 +7,7 @@ System scope and context - as the name suggests - delimits your system
 systems and users, i.e. the context of your system). It thereby
 specifies the external interfaces.
 
-![Categories of Quality Requirements](images/05_building_blocks-EN.png)
+![Categories of Quality Requirements](./images/05_building_blocks-EN.png)
 
 ## Business Context
 

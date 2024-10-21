@@ -1,8 +1,8 @@
 # Building Block View
 
-:[Building-Block-View](05-Building-Block-View/Overview.template.md)
+:[Building-Block-View](./05-Building-Block-View/Overview.template.md)
 
-![Hierarchy of building blocks](images/05_building_blocks-EN.png)
+![Hierarchy of building blocks](./images/05_building_blocks-EN.png)
 
 **Level 1** is the white box description of the overall system together
 with black box descriptions of all contained building blocks.

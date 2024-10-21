@@ -1,6 +1,6 @@
 # Deployment View
 
-:[Deployment View](07-Deployment-View/Deployment-View.template.md)
+:[Deployment View](./07-Deployment-View/Deployment-View.template.md)
 
 **Motivation**
 

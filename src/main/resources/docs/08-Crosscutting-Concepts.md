@@ -63,7 +63,7 @@ Note: it might be difficult to assign individual concepts to one
 specific topic on this list.
 
 ![Possible topics for crosscutting
-concepts](images/08-Crosscutting-Concepts-Structure-EN.png)
+concepts](./images/08-Crosscutting-Concepts-Structure-EN.png)
 
 ## <Concept 1>
 
